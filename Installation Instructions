@@ -1,0 +1,76 @@
+###Setup your centos machine###
+------------------------------------------
+
+##Disable SELinux:##
+---------------------
+setenforce 0
+sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+
+##Disable Swap:##
+------------------
+swapoff -a
+
+##Change firewall settings:##
+-----------------------------
+
+sudo firewall-cmd --zone=public --add-masquerade --permanent
+sudo firewall-cmd --reload
+
+##Install Docker:##
+--------------------------
+
+sudo yum install -y yum-utils
+
+sudo yum-config-manager \
+    --add-repo \
+    https://download.docker.com/linux/centos/docker-ce.repo
+
+sudo yum install docker-ce docker-ce-cli containerd.io
+
+sudo systemctl start docker
+
+sudo systemctl enable docker
+
+
+## Oracle Virtual Box Installation:##
+---------------------------------------
+
+wget https://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo -P /etc/yum.repos.d/
+
+rpm --import https://www.virtualbox.org/download/oracle_vbox.asc
+
+yum install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+yum update
+
+yum install binutils kernel-devel kernel-headers libgomp make patch gcc glibc-headers glibc-devel dkms -y
+
+yum install VirtualBox-6.1
+
+
+##Kubectl Installation:##
+--------------------------
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+
+chmod +x ./kubectl
+
+sudo mv ./kubectl /usr/local/bin/kubectl
+
+kubectl version
+
+###Conntrack Installation:###
+--------------------------
+yum install conntrack -y
+
+###Minikube Installation:###
+--------------------------------
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64  \
+  && install minikube-linux-amd64 /usr/local/bin/minikube \
+  && minikube version
+  
+  minikube start --driver=none
+
+##To fix the error when starting minikube related to ip table:##
+----------------------------------------------------------------
+echo "1" > /proc/sys/net/bridge/bridge-nf-call-iptables
